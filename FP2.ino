@@ -1,5 +1,6 @@
 
 #include <Dynamixel2Arduino.h>
+
   #define DXL_SERIAL   Serial
   //#define DEBUG_SERIAL soft_serial
   const int DXL_DIR_PIN = 12; // DYNAMIXEL Shield DIR PIN
@@ -13,7 +14,6 @@ bool Pblast = LOW;
 int ledUp = 4;//hold naik
 int ledDown = 5;//hold turun
 
-int naik,turun;
 uint8_t tunggu;
 
 const uint8_t DXL_ID0 = 3;
@@ -25,16 +25,37 @@ Dynamixel2Arduino dxl(DXL_SERIAL, DXL_DIR_PIN);
 //This namespace is required to use Control table item names
 using namespace ControlTableItem;//actuator.cpp
 
+//sensor
+  const byte sensor= 6;
+  int nilai;
+  
 void door(){
-dxl.setGoalPosition(DXL_ID0, 180);
-delay(5000);
-dxl.setGoalPosition(DXL_ID0, 0);
+    dxl.setGoalPosition(DXL_ID0, 180); //pintu di buka
+    delay(5000);
+    //ditambahin sensor
+    nilai= digitalRead(sensor);
+    if (sensor == true ){//sensor deteksi
+    dxl.getPresentPosition(DXL_ID0);
+    delay (5000);
+    while (sensor == true){//nunggu
+      }
+}
+    else {//sensor ga deteksi
+    dxl.setGoalPosition(DXL_ID0, 0);
+    delay (1000);
+    }
 }
 
 void setup() {
   // put your setup code here, to run once:
-  pinMode (Pb,OUTPUT);
-  pinMode (Pb2,OUTPUT);
+  pinMode (Pb,INPUT);
+  pinMode (Pb2,INPUT);
+  pinMode (Pb3,INPUT);
+  pinMode (Pb4,INPUT);
+  pinMode (sensor,INPUT);
+  pinMode (ledUp,OUTPUT);
+  pinMode (ledDown,OUTPUT);
+
   // Use UART port of DYNAMIXEL Shield to debug.
 //  DEBUG_SERIAL.begin(115200);
 //  while(!DEBUG_SERIAL);
@@ -66,28 +87,33 @@ void loop() {
  //pintu indikatornya
   while (Pb==LOW){// lt1
   dxl.setGoalPosition(DXL_ID0, 0);
-  digitalWrite (ledUp,LOW);
+  digitalWrite (ledUp,false);
   }
   while (Pb==HIGH){//buka pintu DARI LANTAI 1
   Pbnow = digitalRead(Pb);
   if (Pbnow !=Pblast){
-    if (Pbnow == HIGH){
+    while (Pbnow == HIGH){
       ledUp = true;
-      dxl.setGoalPosition(DXL_ID0, 180);//pintu kebuka
-      delay(5000);
+      door();
+      } 
       }
-      Pblast = Pbnow; 
-      }
-  dxl.setGoalPosition(DXL_ID0, 0);
+  else {
+    dxl.setGoalPosition(DXL_ID0, 0);
+    digitalWrite (ledUp,false);
+  }
   }
   
-  //penumpang masuk
+  //penumpang masuk udah di lift
   if (Pb2==HIGH){//naik dari lift
+    delay(1000);
+    dxl.readControlTableItem(DXL_ID0, MOVING_SPEED, 0);//pintu ditutup dulu baru bisa naik
+    ledUp = false;
+    delay (500);
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);//speed dari 0 ke 512
     while (Pb2==HIGH){//NAIK DARI LANTAI 1
-  Pbnow = digitalRead(Pb);
-  if (Pbnow !=Pblast){
-    if (Pbnow == LOW){
+      Pbnow = digitalRead(Pb);
+      if (Pbnow !=Pblast){
+      if (Pbnow == LOW){
       ledUp = true;
     }Pblast=Pbnow;
     }
@@ -96,22 +122,95 @@ void loop() {
   }
   else {
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 0);
+    ledUp = false;
+  }
+
+  if (Pb3 == HIGH){
+    delay(1000);
+    dxl.readControlTableItem(DXL_ID0, MOVING_SPEED, 0);//pintu ditutup dulu baru bisa naik
+    ledUp = false;
+    delay (500);
+     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//speed dari 0 ke -512
+    while (Pb2==HIGH){//NAIK DARI LANTAI 1
+      Pbnow = digitalRead(Pb);
+      if (Pbnow !=Pblast){
+      if (Pbnow == LOW){
+      ledDown = true;
+    }Pblast=Pbnow;
+    }
+  }
+  door();//lampu indikator sampai ke lt 1
+  }
+  else {
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 0);
+    ledDown = false;
   }
   
 tunggu = dxl.getPresentPosition(DXL_ID1);
 // dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);//naik 
 // dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//turun
 
-if ((Pb4 == HIGH) && (Pb2 ==LOW)){//turun dari lt2
-while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
-dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
-door();
-}
+if ((Pb4 == HIGH) && (Pb ==LOW)){//mau ada turun dari lt2
+    while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door();
+    }
+     while ((tunggu >-512) && (tunggu<=0)){//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    door();
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door(); 
+    while (tunggu =512){
+    door();
+    }while (tunggu =-512){
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door(); 
+    }   
+    }
+  }
+if ((Pb4 == LOW) && (Pb ==HIGH)){//mau ada naik dari lt1
+    while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door();
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    door();
+    }
  while ((tunggu >-512) && (tunggu<=0)){
-dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
-door();
-
-door();
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+    door();
+    while (tunggu =512){
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    door();
+    }while (tunggu =-512){
+    door();
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door();
+    }
+    
+    }
 }
+
+if ((Pb4 == HIGH) && (Pb ==HIGH)){//mau ada naik dari lt1 dan turun lt2
+    while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door();
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    door();
+    }
+    while (tunggu =512){
+    door();
+    }
+ while ((tunggu >-512) && (tunggu<=0)){
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+    door();
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+    door();
+    while (tunggu =-512){
+    door();
+    }
+}
+}
+else {
+  
   }
 }
