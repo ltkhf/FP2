@@ -1,4 +1,4 @@
-
+ 
 #include <Dynamixel2Arduino.h>
 
   #define DXL_SERIAL   Serial
@@ -80,7 +80,7 @@ void setup() {
   dxl.writeControlTableItem(PROFILE_VELOCITY, DXL_ID0,60 );
   dxl.writeControlTableItem(PROFILE_VELOCITY, DXL_ID1,60 );
   dxl.writeControlTableItem(PRESENT_SPEED, DXL_ID1,0 );// set kecepatan sekarang jadi 0
-  
+  //https://emanual.robotis.com/docs/en/dxl/mx/mx-64/#present-speed-38
 }
 
 void loop() {
@@ -107,6 +107,7 @@ void loop() {
   if (Pb2==HIGH){//naik dari lift
     delay(1000);
     dxl.readControlTableItem(DXL_ID0, MOVING_SPEED, 0);//pintu ditutup dulu baru bisa naik
+    //https://emanual.robotis.com/docs/en/dxl/mx/mx-64/#moving-speed-32
     ledUp = false;
     delay (500);
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);//speed dari 0 ke 512
@@ -130,7 +131,7 @@ void loop() {
     dxl.readControlTableItem(DXL_ID0, MOVING_SPEED, 0);//pintu ditutup dulu baru bisa naik
     ledUp = false;
     delay (500);
-     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//speed dari 0 ke -512
+     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);//speed dari 0 ke 1536
     while (Pb2==HIGH){//NAIK DARI LANTAI 1
       Pbnow = digitalRead(Pb);
       if (Pbnow !=Pblast){
@@ -148,21 +149,21 @@ void loop() {
   
 tunggu = dxl.getPresentPosition(DXL_ID1);
 // dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);//naik 
-// dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//turun
+// dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);//turun
 
 if ((Pb4 == HIGH) && (Pb ==LOW)){//mau ada turun dari lt2
     while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door();
     }
-     while ((tunggu >-512) && (tunggu<=0)){//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
-    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+     while ((tunggu >1536) && (tunggu<=0)){//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);
     door();
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door(); 
     while (tunggu =512){
     door();
-    }while (tunggu =-512){
+    }while (tunggu =1536){
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door(); 
     }   
@@ -172,16 +173,16 @@ if ((Pb4 == LOW) && (Pb ==HIGH)){//mau ada naik dari lt1
     while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door();
-    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);
     door();
     }
- while ((tunggu >-512) && (tunggu<=0)){
-    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+ while ((tunggu >1536) && (tunggu<=0)){
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
     door();
     while (tunggu =512){
-    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);
     door();
-    }while (tunggu =-512){
+    }while (tunggu =1536){
     door();
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door();
@@ -194,18 +195,18 @@ if ((Pb4 == HIGH) && (Pb ==HIGH)){//mau ada naik dari lt1 dan turun lt2
     while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door();
-    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);
     door();
     }
     while (tunggu =512){
     door();
     }
- while ((tunggu >-512) && (tunggu<=0)){
-    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, -512);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+ while ((tunggu >1536) && (tunggu<=0)){
+    dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
     door();
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
     door();
-    while (tunggu =-512){
+    while (tunggu =1536){
     door();
     }
 }
