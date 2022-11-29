@@ -1,0 +1,33 @@
+LIFT 
+//algorithm
+lift 2 lantai masing masing lantai ada tombol dari luar pintu untuk buka pintu
+tombol1 (pb)true, lampu naik nyala, 
+pintu di lantai satu buka, 
+sensor deteksi ada orang yang lewat apa enggak,
+kalau lama, pintu bakal buka terus(sistem pintu)
+orang nya masuk,
+sensor tidak mendeteksi,
+pintu ditutup, 
+
+orang tekan tombol naik(Pb2),
+lift naik,sampe
+buka pintu, sistem pintunya sama
+pintu ditutup, lift diem
+
+kalo pb diteken
+lift turun kalau kosong, 
+kalo ada orang mau naik (Pb2) dulu,lift naik buka pintu, kalau ga ada orang lift turun
+
+kalo sebaliknya.
+pb4(lt2) diteken tapi ada orang mau turun (pb3),
+dianter sampe lt1, kalau ga ada orang
+naik otomatis
+
+kalau liftnya ada di lt2, terus ada yang mau masuk dari lt2, pintu kebuka otomatis
+
+kalau liftnya ada di lt1, terus ada yang mau masuk dari lt1, pintu kebuka otomatis
+
+
+
+Fungsi servo :
+Buka/tutup pintu, narik tali rail buat ke lantai selanjutnya pintu
