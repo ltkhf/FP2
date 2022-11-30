@@ -1,4 +1,4 @@
- 
+  
 #include <Dynamixel2Arduino.h>
 
   #define DXL_SERIAL   Serial
@@ -16,7 +16,7 @@ int ledDown = 5;//hold turun
 
 uint8_t tunggu;
 
-const uint8_t DXL_ID0 = 3;
+const uint8_t DXL_ID0 = 21;
 const uint8_t DXL_ID1 = 5;
 const float DXL_PROTOCOL_VERSION = 1.0;
 
@@ -30,6 +30,7 @@ using namespace ControlTableItem;//actuator.cpp
   int nilai;
   
 void door(){
+  Serial.begin (115200);
     dxl.setGoalPosition(DXL_ID0, 180); //pintu di buka
     delay(5000);
     //ditambahin sensor
@@ -61,7 +62,7 @@ void setup() {
 //  while(!DEBUG_SERIAL);
 
   // Set Port baudrate to 57600bps. This has to match with DYNAMIXEL baudrate.
-  dxl.begin(57600);
+  dxl.begin(1000000);
   // Set Port Protocol Version. This has to match with DYNAMIXEL protocol version.
   dxl.setPortProtocolVersion(DXL_PROTOCOL_VERSION);
   // Get DYNAMIXEL information
@@ -88,6 +89,7 @@ void loop() {
   while (Pb==LOW){// lt1
   dxl.setGoalPosition(DXL_ID0, 0);
   digitalWrite (ledUp,false);
+
   }
   while (Pb==HIGH){//buka pintu DARI LANTAI 1
   Pbnow = digitalRead(Pb);
@@ -95,11 +97,13 @@ void loop() {
     while (Pbnow == HIGH){
       ledUp = true;
       door();
+        Serial.println("selamat datang di lantai satuu!");
       } 
       }
   else {
     dxl.setGoalPosition(DXL_ID0, 0);
     digitalWrite (ledUp,false);
+   ("pintunya nutup lagi deh");
   }
   }
   
@@ -116,6 +120,7 @@ void loop() {
       if (Pbnow !=Pblast){
       if (Pbnow == LOW){
       ledUp = true;
+      Serial.println("Kita naik ya ke lt2");
     }Pblast=Pbnow;
     }
   }
@@ -137,6 +142,7 @@ void loop() {
       if (Pbnow !=Pblast){
       if (Pbnow == LOW){
       ledDown = true;
+      Serial.println("Kita turun ke lt.1");
     }Pblast=Pbnow;
     }
   }
@@ -154,17 +160,26 @@ tunggu = dxl.getPresentPosition(DXL_ID1);
 if ((Pb4 == HIGH) && (Pb ==LOW)){//mau ada turun dari lt2
     while ((tunggu <512) && (tunggu>=0)){//tapi posisi mau naik lift nya, masih di antara lt1 dan lt2
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+        Serial.println("liftnya lagi naik ke lt.2 sabar ya");
     door();
+        Serial.println("Iya ini pintunya udah di buka di lt.2");
+
     }
-     while ((tunggu >1536) && (tunggu<=0)){//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
+     while ((tunggu <1536) && (tunggu<=1024)){//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);
+        Serial.println("liftnya turun dulu ke lantai 1");
     door();
+        Serial.println("bentarr");
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+        Serial.println("Iya ini lagi naik lagi");
     door(); 
+        Serial.println("Iya ini pintunya udah di buka di lt.2");
     while (tunggu =512){
     door();
+    
     }while (tunggu =1536){
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
+        Serial.println("Iya ini pintunya udah di buka di lt.2");
     door(); 
     }   
     }
@@ -176,7 +191,7 @@ if ((Pb4 == LOW) && (Pb ==HIGH)){//mau ada naik dari lt1
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);
     door();
     }
- while ((tunggu >1536) && (tunggu<=0)){
+ while ((tunggu <1536) && (tunggu<=1024)){
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
     door();
     while (tunggu =512){
@@ -201,7 +216,7 @@ if ((Pb4 == HIGH) && (Pb ==HIGH)){//mau ada naik dari lt1 dan turun lt2
     while (tunggu =512){
     door();
     }
- while ((tunggu >1536) && (tunggu<=0)){
+ while ((tunggu <1536) && (tunggu<=1024)){
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 1536);//tapi posisi mau turun lift nya, masih di antara lt1 dan lt2
     door();
     dxl.readControlTableItem(DXL_ID1, MOVING_SPEED, 512);
