@@ -1,0 +1,28 @@
+LIFT 
+106 ID 2,10
+MULTI TURN MODE
+set
+cc,ccw 4095 writeControlTableItem(ControlTableItem::CW_ANGLE_LIMIT, id, 0)
+moving_speed 100
+(4,200 / loop)
+
+estimate :
+5 kali putaran 
+goal pos0~21000 setGoal
+pres pos3002~23999
+
+4 kali putaran
+goal pos0~16390setGoal
+pres pos0~16390
+
+3 kali putaran 
+goal pos0~1225setGoal
+pres pos2~
+
+
+DOOR
+28 ID 1
+cc,ccw joint mode
+set Goal pos 0-3060
+pres pos 0-3060
+
